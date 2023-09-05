@@ -32,16 +32,35 @@ pub fn use_request_animation_frame() -> RequestAnimationFrame {
 }
 
 impl RequestAnimationFrame {
-    pub fn each<Q>(self, callback: Q)
+    pub fn each<Q>(&self, callback: Q)
     where
         Q: Fn(f64) -> bool + 'static
     {
         let raf_clone = self.0.clone();
-        request_animation_frame(move |f| raf_callback(raf_clone, callback, f));
+        *self.0.borrow_mut() = Some(
+            request_animation_frame(move |f| raf_callback(raf_clone, callback, f))
+        );
+    }
+
+    pub fn once<Q>(&self, callback: Q)
+    where
+        Q: FnOnce(f64) + 'static
+    {
+        let raf_clone = self.0.clone();
+        *self.0.borrow_mut() = Some(
+            request_animation_frame(move |f| {
+                callback(f);
+                *raf_clone.borrow_mut() = None;
+            })
+        );
     }
 }
 
-
+impl Clone for RequestAnimationFrame {
+    fn clone(&self) -> Self {
+        Self(self.0.clone())
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -57,6 +76,14 @@ mod tests {
     {
         f(0f64);
         AnimationFrame
+    }
+
+    #[test]
+    fn test_raf_is_some() {
+        let raf = RequestAnimationFrame(Rc::new(RefCell::new(None)));
+        assert!(raf.0.borrow().is_none());
+        raf.once(move |_| {});
+        assert!(raf.0.borrow().is_some());
     }
 
     #[test]
