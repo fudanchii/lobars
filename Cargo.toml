@@ -9,3 +9,9 @@ authors = ["Nurahmadie <nurahmadie@gmail.com>"]
 [dependencies]
 gloo-render = "0.1"
 yew = "0.20"
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+
+[features]
+tauri = []
