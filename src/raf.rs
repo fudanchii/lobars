@@ -1,13 +1,13 @@
 #[cfg(not(test))]
 use gloo_render::{request_animation_frame, AnimationFrame};
 
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
 
 use yew::{functional::use_mut_ref, hook};
 
 #[cfg(test)]
-use tests::{AnimationFrame, request_animation_frame};
+use tests::{request_animation_frame, AnimationFrame};
 
 pub enum RAFNext {
     Continue,
@@ -32,9 +32,9 @@ where
     let rafcell_clone = rafcell.clone();
     *rafcell.borrow_mut() = match callback(frame) {
         RAFNext::Abort => None,
-        RAFNext::Continue => Some(
-            request_animation_frame(move |f| raf_callback(rafcell_clone, callback, f))
-        ),
+        RAFNext::Continue => Some(request_animation_frame(move |f| {
+            raf_callback(rafcell_clone, callback, f)
+        })),
     };
 }
 
@@ -46,25 +46,23 @@ pub fn use_request_animation_frame() -> RequestAnimationFrame {
 impl RequestAnimationFrame {
     pub fn each<Q>(&self, callback: Q)
     where
-        Q: Fn(f64) -> RAFNext + 'static
+        Q: Fn(f64) -> RAFNext + 'static,
     {
         let raf_clone = self.0.clone();
-        *self.0.borrow_mut() = Some(
-            request_animation_frame(move |f| raf_callback(raf_clone, callback, f))
-        );
+        *self.0.borrow_mut() = Some(request_animation_frame(move |f| {
+            raf_callback(raf_clone, callback, f)
+        }));
     }
 
     pub fn once<Q>(&self, callback: Q)
     where
-        Q: FnOnce(f64) + 'static
+        Q: FnOnce(f64) + 'static,
     {
         let raf_clone = self.0.clone();
-        *self.0.borrow_mut() = Some(
-            request_animation_frame(move |f| {
-                callback(f);
-                *raf_clone.borrow_mut() = None;
-            })
-        );
+        *self.0.borrow_mut() = Some(request_animation_frame(move |f| {
+            callback(f);
+            *raf_clone.borrow_mut() = None;
+        }));
     }
 }
 
@@ -84,7 +82,7 @@ mod tests {
 
     pub fn request_animation_frame<P>(f: P) -> AnimationFrame
     where
-        P: FnOnce(f64) + 'static
+        P: FnOnce(f64) + 'static,
     {
         f(0f64);
         AnimationFrame
