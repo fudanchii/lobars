@@ -1,6 +1,6 @@
 [package]
 name = "lobars"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Nurahmadie <nurahmadie@gmail.com>"]
 
@@ -8,7 +8,7 @@ authors = ["Nurahmadie <nurahmadie@gmail.com>"]
 
 [dependencies]
 gloo-render = "0.1"
-yew = "0.20"
+yew = "0.21"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
 js-sys = "0.3"
